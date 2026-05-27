@@ -7,7 +7,7 @@
 use std::cell::RefCell;
 
 use bevy::prelude::*;
-use bevy_mod_scripting_asset::{Language, ScriptAsset};
+use bevy_mod_scripting_asset::ScriptAsset;
 use bevy_mod_scripting_core::{
     callback_labels, event::ScriptCallbackEvent, handler::event_handler,
     script::ScriptComponent, BMSScriptingInfrastructurePlugin,
@@ -52,9 +52,9 @@ impl Default for Settings {
 #[derive(Component)]
 struct Cell(usize);
 
-/// The entity carrying the `LifeState` + `ScriptComponent`, so the editor can hot-swap its script.
+/// Handle to the game's `ScriptAsset`, so the editor can hot-reload it by mutating its content.
 #[derive(Resource)]
-struct ScriptEntity(Entity);
+struct ScriptHandle(Handle<ScriptAsset>);
 
 thread_local! {
     /// A Lua source edited in the page, awaiting application on the next frame.
@@ -107,15 +107,14 @@ fn main() {
 
 fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn(Camera2d);
-    let entity = commands
-        .spawn((
-            LifeState {
-                cells: vec![0u8; W * H],
-            },
-            ScriptComponent::new(vec![assets.load::<ScriptAsset>("game_of_life.lua")]),
-        ))
-        .id();
-    commands.insert_resource(ScriptEntity(entity));
+    let handle = assets.load::<ScriptAsset>("game_of_life.lua");
+    commands.spawn((
+        LifeState {
+            cells: vec![0u8; W * H],
+        },
+        ScriptComponent::new(vec![handle.clone()]),
+    ));
+    commands.insert_resource(ScriptHandle(handle));
 
     let origin_x = -(W as f32) * CELL / 2.0 + CELL / 2.0;
     let origin_y = (H as f32) * CELL / 2.0 - CELL / 2.0;
@@ -130,29 +129,16 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     }
 }
 
-/// Hot-swap the script when the editor submitted new Lua: reset the grid and attach a fresh
-/// in-memory `ScriptAsset`, which bms reloads into a new lua-rs context.
-fn apply_pending_script(
-    script_entity: Res<ScriptEntity>,
-    mut assets: ResMut<Assets<ScriptAsset>>,
-    mut life: Query<&mut LifeState>,
-    mut commands: Commands,
-) {
+/// Hot-reload when the editor submitted new Lua: mutate the existing `ScriptAsset`'s content,
+/// which fires `AssetEvent::Modified` → bms reloads the context (re-execs the chunk, so the new
+/// `on_update` rule takes effect, and `on_script_loaded` re-fires to reseed the grid).
+fn apply_pending_script(sh: Res<ScriptHandle>, mut assets: ResMut<Assets<ScriptAsset>>) {
     let Some(src) = PENDING_SCRIPT.with(|p| p.borrow_mut().take()) else {
         return;
     };
-    if let Some(mut state) = life.iter_mut().next() {
-        for c in state.cells.iter_mut() {
-            *c = 0;
-        }
+    if let Some(asset) = assets.get_mut(&sh.0) {
+        asset.content = src.into_bytes().into_boxed_slice();
     }
-    let handle = assets.add(ScriptAsset {
-        content: src.into_bytes().into_boxed_slice(),
-        language: Language::Lua,
-    });
-    commands
-        .entity(script_entity.0)
-        .insert(ScriptComponent::new(vec![handle]));
 }
 
 fn fire_on_update(mut events: MessageWriter<ScriptCallbackEvent>) {

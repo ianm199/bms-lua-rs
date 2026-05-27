@@ -1414,7 +1414,7 @@ checksum = "616ec5685824bcc94416c6d4a7a446eea774a31efd7062c8480ba6fd06d7a6e5"
 
 [[package]]
 name = "lua-code"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -1422,11 +1422,11 @@ dependencies = [
 
 [[package]]
 name = "lua-gc"
-version = "0.0.6"
+version = "0.0.7"
 
 [[package]]
 name = "lua-lex"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -1434,7 +1434,7 @@ dependencies = [
 
 [[package]]
 name = "lua-parse"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "lua-code",
  "lua-lex",
@@ -1444,7 +1444,7 @@ dependencies = [
 
 [[package]]
 name = "lua-rs-runtime"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "lua-gc",
  "lua-parse",
@@ -1455,7 +1455,7 @@ dependencies = [
 
 [[package]]
 name = "lua-stdlib"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -1463,14 +1463,14 @@ dependencies = [
 
 [[package]]
 name = "lua-types"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "lua-gc",
 ]
 
 [[package]]
 name = "lua-vm"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "lua-gc",
  "lua-types",
