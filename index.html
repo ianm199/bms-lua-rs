@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game of Life in Lua — bevy_mod_scripting on pure-Rust lua-rs, in the browser, no C</title>
+  
+<script type="module">
+import init, * as bindings from '/bms-lua-rs/bms-lua-rs-web-demo-f75e845d36b0c73d.js';
+const wasm = await init({ module_or_path: '/bms-lua-rs/bms-lua-rs-web-demo-f75e845d36b0c73d_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script>
+  
+  <style>
+    :root { color-scheme: dark; }
+    html, body { margin: 0; height: 100%; background: #0b0b12; color: #e6e6ef;
+      font: 14px/1.5 ui-sans-serif, system-ui, sans-serif; overflow: hidden; }
+    #app { display: flex; height: 100%; }
+    #left { width: 480px; min-width: 360px; display: flex; flex-direction: column;
+      border-right: 1px solid #23232f; padding: 14px 14px 10px; box-sizing: border-box; }
+    #left h1 { font-size: 15px; margin: 0 0 2px; }
+    #left p.sub { margin: 0 0 10px; color: #9aa; font-size: 12px; }
+    #editor { flex: 1; width: 100%; resize: none; box-sizing: border-box;
+      background: #07070d; color: #d6e6d6; border: 1px solid #23232f; border-radius: 6px;
+      font: 12.5px/1.45 ui-monospace, "SF Mono", Menlo, monospace; padding: 10px; tab-size: 2; }
+    #bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 0 4px; }
+    button { background: #1c1c28; color: #e6e6ef; border: 1px solid #33334a; border-radius: 6px;
+      padding: 7px 12px; cursor: pointer; font-size: 13px; }
+    button:hover { background: #26263a; }
+    button.run { background: #1f7a3f; border-color: #2da35a; font-weight: 600; }
+    button.run:hover { background: #248c49; }
+    #status { color: #8a8; font-size: 12px; margin-left: auto; }
+    #right { flex: 1; position: relative; min-width: 0; }
+    canvas { display: block; width: 100%; height: 100%; }
+    a { color: #7fd0a0; }
+  </style>
+<link rel="modulepreload" href="/bms-lua-rs/bms-lua-rs-web-demo-f75e845d36b0c73d.js" crossorigin="anonymous" integrity="sha384-EE0LChpBABe4j9W4OxYBypcK6eKzYr1PeCfd4CdJuHPfCMpZzAGnO8df5lihf8Hp"><link rel="preload" href="/bms-lua-rs/bms-lua-rs-web-demo-f75e845d36b0c73d_bg.wasm" crossorigin="anonymous" integrity="sha384-aBuo3fZDpvRXwbuagUa/BrAa2jPGvD88I41jnDPwQOSfEQW3WA8CBIljgb91YcD9" as="fetch" type="application/wasm"></head>
+<body>
+  <div id="app">
+    <div id="left">
+      <h1>Conway's Game of Life — scripted in Lua</h1>
+      <p class="sub">bevy_mod_scripting's own example script, unmodified, driving a Bevy game
+        through <b>pure-Rust lua-rs</b> — in your browser, no C, no server.
+        <b>Edit the Lua, hit Run</b>, and the running game hot-reloads.</p>
+      <textarea id="editor" spellcheck="false" placeholder="loading game_of_life.lua…"></textarea>
+      <div id="bar">
+        <button id="run" class="run">Run &#9654;</button>
+        <button id="conway">Conway (B3/S23)</button>
+        <button id="highlife">HighLife (B36/S23)</button>
+        <span id="status"></span>
+      </div>
+    </div>
+    <div id="right"><canvas id="bevy"></canvas></div>
+  </div>
+
+  <script>
+    const ta = document.getElementById('editor');
+    const statusEl = document.getElementById('status');
+    let ORIGINAL = '';
+    const setStatus = (m) => { statusEl.textContent = m; };
+
+    fetch('game_of_life.lua')
+      .then((r) => r.text())
+      .then((t) => { ORIGINAL = t; ta.value = t; })
+      .catch(() => setStatus('could not load game_of_life.lua'));
+
+    function run(src) {
+      const b = window.wasmBindings;
+      if (b && typeof b.set_script === 'function') {
+        b.set_script(src);
+        setStatus('▶ reloaded');
+      } else {
+        setStatus('engine still loading — try again in a moment');
+      }
+    }
+
+    document.getElementById('run').onclick = () => run(ta.value);
+    document.getElementById('conway').onclick = () => { ta.value = ORIGINAL; run(ORIGINAL); };
+    document.getElementById('highlife').onclick = () => {
+      const s = ORIGINAL.replace(
+        'prev_state[i] == 0 and neighbours == 3 then',
+        'prev_state[i] == 0 and (neighbours == 3 or neighbours == 6) then'
+      );
+      ta.value = s;
+      run(s);
+    };
+  </script>
+</body>
+</html>
