@@ -14,8 +14,6 @@ bevy_ecs = "0.18"
 bevy_log = "0.18"
 bevy_platform = "0.18"
 
-# lua-rs vendored from the v0.0.7 release (create_userdata/UserData API + MetaMethod::Pairs).
-# Vendored (not git/crates.io) so the demo repo is self-contained and builds anywhere.
-lua-rs-runtime = { path = "../vendor/lua-rs/crates/lua-rs-runtime" }
-lua-vm = { path = "../vendor/lua-rs/crates/lua-vm" }
-lua-types = { path = "../vendor/lua-rs/crates/lua-types" }
+lua-rs-runtime = "0.0.7"
+lua-vm = "0.0.7"
+lua-types = "0.0.7"
