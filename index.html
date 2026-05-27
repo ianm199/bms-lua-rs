@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Game of Life in Lua — bevy_mod_scripting on pure-Rust lua-rs, in the browser, no C</title>
+  <title>Game of Life in Lua, on pure-Rust lua-rs, in the browser</title>
   
 <script type="module">
-import init, * as bindings from '/bms-lua-rs/bms-lua-rs-web-demo-1e7061d8a6d8f7aa.js';
-const wasm = await init({ module_or_path: '/bms-lua-rs/bms-lua-rs-web-demo-1e7061d8a6d8f7aa_bg.wasm' });
+import init, * as bindings from '/bms-lua-rs/bms-lua-rs-web-demo-848f2f964530fd14.js';
+const wasm = await init({ module_or_path: '/bms-lua-rs/bms-lua-rs-web-demo-848f2f964530fd14_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -26,8 +26,18 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
     html, body { margin: 0; height: 100%; background: #0b0b12; color: #e6e6ef;
       font: 14px/1.5 ui-sans-serif, system-ui, sans-serif; overflow: hidden; }
     #app { display: flex; height: 100%; }
-    #left { width: 520px; min-width: 380px; display: flex; flex-direction: column;
-      border-right: 1px solid #23232f; padding: 14px 14px 10px; box-sizing: border-box; }
+    #left { z-index: 20; flex: none; width: 540px; min-width: 0; overflow: hidden;
+      display: flex; flex-direction: column;
+      border-right: 1px solid #23232f; padding: 14px 14px 10px; box-sizing: border-box;
+      transition: margin-left 0.28s ease; }
+    body.code-hidden #left { margin-left: -540px; }
+    #drawer-tab { position: fixed; left: 540px; top: 16px; width: 26px; height: 50px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      background: #1c1c28; color: #cbd; border: 1px solid #33334a; border-left: 0;
+      border-radius: 0 8px 8px 0; font-size: 18px; line-height: 1; z-index: 30; user-select: none;
+      transition: left 0.28s ease, transform 0.28s ease; }
+    #drawer-tab:hover { background: #26263a; }
+    body.code-hidden #drawer-tab { left: 0; transform: rotate(180deg); }
     #left h1 { font-size: 15px; margin: 0 0 2px; }
     #left p.sub { margin: 0 0 10px; color: #9aa; font-size: 12px; }
     #editorwrap { flex: 1; min-height: 0; overflow: hidden;
@@ -36,7 +46,13 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
       background: #07070d; color: #d6e6d6; padding: 10px;
       font: 12.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace; }
     .CodeMirror { height: 100% !important; font: 12.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace; }
-    #bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 0 4px; }
+    #params { padding: 8px 0 2px; display: flex; flex-direction: column; gap: 6px; }
+    #params .row { display: grid; grid-template-columns: 130px 1fr 44px; align-items: center; gap: 8px; }
+    #params label { color: #b8c2c2; font-size: 12px; }
+    #params input[type=range] { width: 100%; accent-color: #2da35a; }
+    #params .val { color: #8fd0a0; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+    #params .hint { color: #667; font-size: 11px; }
+    #bar { display: flex; gap: 8px; align-items: center; padding: 8px 0 4px; }
     button { background: #1c1c28; color: #e6e6ef; border: 1px solid #33334a; border-radius: 6px;
       padding: 7px 12px; cursor: pointer; font-size: 13px; }
     button:hover { background: #26263a; }
@@ -46,68 +62,130 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
     #right { flex: 1; position: relative; min-width: 0; }
     canvas { display: block; width: 100%; height: 100%; }
   </style>
-<link rel="modulepreload" href="/bms-lua-rs/bms-lua-rs-web-demo-1e7061d8a6d8f7aa.js" crossorigin="anonymous" integrity="sha384-pUeM9LvT0LJu8tmFyIA/2Ni8Wbl14YyzwRrNbuMjcbwnajVFqvX0tQk3jdZQ75aA"><link rel="preload" href="/bms-lua-rs/bms-lua-rs-web-demo-1e7061d8a6d8f7aa_bg.wasm" crossorigin="anonymous" integrity="sha384-kNWqp7pYX4yYmNGTMbVTDkjGroAwklrAaXlySGWs6zpYjIZChNVKv/UlWm8nysyo" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="/bms-lua-rs/bms-lua-rs-web-demo-848f2f964530fd14.js" crossorigin="anonymous" integrity="sha384-IlnY8zo1Ykc8EvXEXKk3ruPPmaL9pcQwxksArmAn/EmnsX+z3qNijNdmRDAEGwol"><link rel="preload" href="/bms-lua-rs/bms-lua-rs-web-demo-848f2f964530fd14_bg.wasm" crossorigin="anonymous" integrity="sha384-XRpXS4iLwgybEXIpKsMMYfMYywBga3UKc+9WLoIbxi7xEzkocu/IvzfWHz7IjA+T" as="fetch" type="application/wasm"></head>
 <body>
   <div id="app">
     <div id="left">
-      <h1>Conway's Game of Life — scripted in Lua</h1>
-      <p class="sub">bevy_mod_scripting's own example script, unmodified, driving a Bevy game
-        through <b>pure-Rust lua-rs</b> — in your browser, no C, no server.
-        <b>Edit the Lua, hit Run</b>, and the running game hot-reloads.</p>
+      <h1>Game of Life, scripted in Lua</h1>
+      <p class="sub">A Bevy game scripted in <b>pure-Rust lua-rs</b>. It runs entirely in your
+        browser, with no C and no backend. The script builds its own sliders by calling
+        <code>param(...)</code>. Drag a slider to change the rules live, or edit the Lua and
+        click <b>Run</b> to reload it.</p>
       <div id="editorwrap"><textarea id="editor" spellcheck="false"></textarea></div>
+      <div id="params"></div>
       <div id="bar">
         <button id="run" class="run">Run &#9654;</button>
-        <button id="conway">Conway (B3/S23)</button>
-        <button id="highlife">HighLife (B36/S23)</button>
+        <button id="reset">Reset</button>
+        <button data-preset="conway">Conway</button>
+        <button data-preset="highlife">HighLife</button>
+        <button data-preset="maze">Maze</button>
+        <button data-preset="seeds">Seeds</button>
         <span id="status"></span>
       </div>
     </div>
     <div id="right"><canvas id="bevy"></canvas></div>
+    <div id="drawer-tab" title="Show / hide the editor">&#8249;</div>
   </div>
 
   <script>
     const ta = document.getElementById('editor');
     const statusEl = document.getElementById('status');
+    const paramsEl = document.getElementById('params');
     const setStatus = (m) => { statusEl.textContent = m; };
 
-    // Use CodeMirror for syntax highlighting if it loaded; otherwise fall back to the
-    // plain textarea. Either way `editor.get()/set()` work and the buttons get wired.
     let editor;
     try {
       const cm = CodeMirror.fromTextArea(ta, {
         mode: 'lua', theme: 'material-darker', lineNumbers: true, tabSize: 2,
       });
-      editor = { get: () => cm.getValue(), set: (v) => { cm.setValue(v); cm.refresh(); } };
+      editor = { get: () => cm.getValue(), set: (v) => { cm.setValue(v); cm.refresh(); },
+        refresh: () => cm.refresh() };
     } catch (e) {
-      editor = { get: () => ta.value, set: (v) => { ta.value = v; } };
+      editor = { get: () => ta.value, set: (v) => { ta.value = v; }, refresh: () => {} };
     }
 
     let ORIGINAL = '';
-    fetch('assets/game_of_life.lua')
+    fetch('assets/tweakable.lua')
       .then((r) => r.text())
       .then((t) => { ORIGINAL = t; editor.set(t); })
-      .catch(() => setStatus('could not load game_of_life.lua'));
+      .catch(() => setStatus('could not load tweakable.lua'));
 
+    const bindings = () => window.wasmBindings;
     function run(src) {
-      const b = window.wasmBindings;
-      if (b && typeof b.set_script === 'function') {
-        b.set_script(src);
-        setStatus('▶ reloaded');
-      } else {
-        setStatus('engine still loading — try again in a moment');
+      const b = bindings();
+      if (b && typeof b.set_script === 'function') { b.set_script(src); setStatus('reloaded'); }
+      else { setStatus('engine still loading, try again in a moment'); }
+    }
+    document.getElementById('run').onclick = () => run(editor.get());
+
+    document.getElementById('drawer-tab').onclick = () => {
+      const hidden = document.body.classList.toggle('code-hidden');
+      if (!hidden) setTimeout(() => editor.refresh(), 300);
+    };
+
+    // Known-good Life rules, expressed as the script's params.
+    const PRESETS = {
+      conway:   { 'birth on': 3, 'also born on': 0, 'survive min': 2, 'survive max': 3 },
+      highlife: { 'birth on': 3, 'also born on': 6, 'survive min': 2, 'survive max': 3 },
+      maze:     { 'birth on': 3, 'also born on': 0, 'survive min': 1, 'survive max': 5 },
+      seeds:    { 'birth on': 2, 'also born on': 0, 'survive min': 1, 'survive max': 0 },
+    };
+    function applyParams(map) {
+      const b = bindings();
+      for (const [name, value] of Object.entries(map)) {
+        if (b && typeof b.set_param === 'function') b.set_param(name, value);
+        const input = paramsEl.querySelector(`input[data-name="${CSS.escape(name)}"]`);
+        if (input) { input.value = value; input.nextElementSibling.textContent = value; }
+      }
+    }
+    document.querySelectorAll('button[data-preset]').forEach((btn) => {
+      btn.onclick = () => { applyParams(PRESETS[btn.dataset.preset]); run(editor.get()); };
+    });
+    document.getElementById('reset').onclick = () => {
+      editor.set(ORIGINAL);
+      applyParams({ 'seed density': 1000, 'birth on': 3, 'also born on': 0, 'survive min': 2, 'survive max': 3 });
+      run(ORIGINAL);
+    };
+
+    // Build a slider per param the script declared; re-render only when the set of params changes.
+    let lastNames = '';
+    function renderSliders(params) {
+      paramsEl.innerHTML = '';
+      if (!params.length) {
+        paramsEl.innerHTML = '<div class="hint">Sliders appear here once the script calls param(...).</div>';
+        return;
+      }
+      for (const p of params) {
+        const row = document.createElement('div');
+        row.className = 'row';
+        const label = document.createElement('label');
+        label.textContent = p.name;
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.dataset.name = p.name;
+        input.min = p.min; input.max = p.max; input.step = 1; input.value = p.value;
+        const val = document.createElement('span');
+        val.className = 'val';
+        val.textContent = p.value;
+        input.oninput = () => {
+          val.textContent = input.value;
+          const b = bindings();
+          if (b && typeof b.set_param === 'function') b.set_param(p.name, parseFloat(input.value));
+        };
+        input.onchange = () => run(editor.get()); // re-run so seed-density (read on load) re-applies
+        row.append(label, input, val);
+        paramsEl.append(row);
       }
     }
 
-    document.getElementById('run').onclick = () => run(editor.get());
-    document.getElementById('conway').onclick = () => { editor.set(ORIGINAL); run(ORIGINAL); };
-    document.getElementById('highlife').onclick = () => {
-      const s = ORIGINAL.replace(
-        'prev_state[i] == 0 and neighbours == 3 then',
-        'prev_state[i] == 0 and (neighbours == 3 or neighbours == 6) then'
-      );
-      editor.set(s);
-      run(s);
-    };
+    setInterval(() => {
+      const b = bindings();
+      if (!b || typeof b.get_params !== 'function') return;
+      let params;
+      try { params = JSON.parse(b.get_params()); } catch (e) { return; }
+      const names = params.map((p) => p.name).join('|');
+      if (names !== lastNames) { lastNames = names; renderSliders(params); }
+    }, 400);
   </script>
 </body>
 </html>
