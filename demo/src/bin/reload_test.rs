@@ -20,8 +20,7 @@ callback_labels!(OnUpdate => "on_update");
 const W: usize = 48;
 const H: usize = 48;
 const SWAP_AT: u32 = 40;
-const ASSETS: &str =
-    "/Users/ianmclaughlin/PycharmProjects/rustExperiments/bms-lua-rs/demo/assets";
+const ASSETS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/assets");
 
 #[derive(Debug, Default, Clone, Reflect, Component)]
 #[reflect(Component, Default)]

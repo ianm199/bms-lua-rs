@@ -17,8 +17,7 @@ use bevy_mod_scripting_lua_rs::LuaRsScriptingPlugin;
 
 callback_labels!(OnUpdate => "on_update");
 
-const ASSETS: &str =
-    "/Users/ianmclaughlin/PycharmProjects/rustExperiments/bms-lua-rs/demo/assets";
+const ASSETS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/assets");
 
 fn main() {
     App::new()
