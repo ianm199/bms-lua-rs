@@ -17,10 +17,10 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 
 </script>
   
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/lua/lua.min.js"></script>
+  <link rel="stylesheet" href="assets/cm/codemirror.min.css" />
+  <link rel="stylesheet" href="assets/cm/material-darker.min.css" />
+  <script src="assets/cm/codemirror.min.js"></script>
+  <script src="assets/cm/lua.min.js"></script>
   <style>
     :root { color-scheme: dark; }
     html, body { margin: 0; height: 100%; background: #0b0b12; color: #e6e6ef;
@@ -32,6 +32,9 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
     #left p.sub { margin: 0 0 10px; color: #9aa; font-size: 12px; }
     #editorwrap { flex: 1; min-height: 0; overflow: hidden;
       border: 1px solid #23232f; border-radius: 6px; }
+    #editor { width: 100%; height: 100%; box-sizing: border-box; resize: none; border: 0;
+      background: #07070d; color: #d6e6d6; padding: 10px;
+      font: 12.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace; }
     .CodeMirror { height: 100% !important; font: 12.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace; }
     #bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 0 4px; }
     button { background: #1c1c28; color: #e6e6ef; border: 1px solid #33334a; border-radius: 6px;
@@ -63,20 +66,26 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
   </div>
 
   <script>
+    const ta = document.getElementById('editor');
     const statusEl = document.getElementById('status');
     const setStatus = (m) => { statusEl.textContent = m; };
 
-    const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
-      mode: 'lua',
-      theme: 'material-darker',
-      lineNumbers: true,
-      tabSize: 2,
-    });
+    // Use CodeMirror for syntax highlighting if it loaded; otherwise fall back to the
+    // plain textarea. Either way `editor.get()/set()` work and the buttons get wired.
+    let editor;
+    try {
+      const cm = CodeMirror.fromTextArea(ta, {
+        mode: 'lua', theme: 'material-darker', lineNumbers: true, tabSize: 2,
+      });
+      editor = { get: () => cm.getValue(), set: (v) => { cm.setValue(v); cm.refresh(); } };
+    } catch (e) {
+      editor = { get: () => ta.value, set: (v) => { ta.value = v; } };
+    }
 
     let ORIGINAL = '';
     fetch('assets/game_of_life.lua')
       .then((r) => r.text())
-      .then((t) => { ORIGINAL = t; cm.setValue(t); cm.refresh(); })
+      .then((t) => { ORIGINAL = t; editor.set(t); })
       .catch(() => setStatus('could not load game_of_life.lua'));
 
     function run(src) {
@@ -89,14 +98,14 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
       }
     }
 
-    document.getElementById('run').onclick = () => run(cm.getValue());
-    document.getElementById('conway').onclick = () => { cm.setValue(ORIGINAL); run(ORIGINAL); };
+    document.getElementById('run').onclick = () => run(editor.get());
+    document.getElementById('conway').onclick = () => { editor.set(ORIGINAL); run(ORIGINAL); };
     document.getElementById('highlife').onclick = () => {
       const s = ORIGINAL.replace(
         'prev_state[i] == 0 and neighbours == 3 then',
         'prev_state[i] == 0 and (neighbours == 3 or neighbours == 6) then'
       );
-      cm.setValue(s);
+      editor.set(s);
       run(s);
     };
   </script>
