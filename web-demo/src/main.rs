@@ -68,6 +68,20 @@ pub fn set_script(src: String) {
     PENDING_SCRIPT.with(|p| *p.borrow_mut() = Some(src));
 }
 
+/// The knobs the script declared via `param(...)`, as JSON, for the slider panel.
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen::prelude::wasm_bindgen]
+pub fn get_params() -> String {
+    bevy_mod_scripting_lua_rs::params_json()
+}
+
+/// Update a declared param from a slider; the script reads the new value on its next call.
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen::prelude::wasm_bindgen]
+pub fn set_param(name: String, value: f64) {
+    bevy_mod_scripting_lua_rs::set_param(&name, value);
+}
+
 fn main() {
     App::new()
         .add_plugins(
@@ -107,7 +121,7 @@ fn main() {
 
 fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn(Camera2d);
-    let handle = assets.load::<ScriptAsset>("game_of_life.lua");
+    let handle = assets.load::<ScriptAsset>("tweakable.lua");
     commands.spawn((
         LifeState {
             cells: vec![0u8; W * H],

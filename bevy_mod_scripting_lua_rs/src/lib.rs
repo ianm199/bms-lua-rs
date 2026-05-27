@@ -67,6 +67,45 @@ pub fn draw_buffer() -> Vec<DrawCmd> {
     DRAW_BUF.with(|b| b.borrow().clone())
 }
 
+/// A tunable parameter a script declared via the `param(name, default, min, max)` host fn.
+/// The host renders a control per param; the script reads the current value back.
+struct ParamDef {
+    name: String,
+    value: f64,
+    min: f64,
+    max: f64,
+}
+
+thread_local! {
+    static PARAMS: RefCell<Vec<ParamDef>> = const { RefCell::new(Vec::new()) };
+}
+
+/// The declared params as JSON (`[{"name","value","min","max"}, ...]`) for a host UI.
+pub fn params_json() -> String {
+    PARAMS.with(|p| {
+        let items: Vec<String> = p
+            .borrow()
+            .iter()
+            .map(|d| {
+                format!(
+                    "{{\"name\":{:?},\"value\":{},\"min\":{},\"max\":{}}}",
+                    d.name, d.value, d.min, d.max
+                )
+            })
+            .collect();
+        format!("[{}]", items.join(","))
+    })
+}
+
+/// Set a declared param's value (from a host UI control). No-op for unknown names.
+pub fn set_param(name: &str, value: f64) {
+    PARAMS.with(|p| {
+        if let Some(d) = p.borrow_mut().iter_mut().find(|d| d.name == name) {
+            d.value = value;
+        }
+    });
+}
+
 /// A lua-rs runtime, used as a bms script context.
 ///
 /// `Lua` holds GC raw pointers and is not `Send`. bms requires `Context: Send`, storing
@@ -173,6 +212,33 @@ fn register_host_fns(lua: &Lua) -> LuaResult<()> {
         Ok(())
     })?;
     g.set("rect", rect)?;
+
+    // `param(name, default, min, max) -> number`: declare a tunable knob and read its current
+    // value. New names register with the default; the host renders a control and feeds values
+    // back via `set_param`, so the script keeps its value across hot-reloads.
+    let param = lua.create_function(|_l, (name, rest): (String, Variadic<f64>)| {
+        let r = rest.into_vec();
+        let default = r.first().copied().unwrap_or(0.0);
+        let min = r.get(1).copied().unwrap_or(0.0);
+        let max = r.get(2).copied().unwrap_or(1.0);
+        let value = PARAMS.with(|p| {
+            let mut p = p.borrow_mut();
+            match p.iter().find(|d| d.name == name) {
+                Some(d) => d.value,
+                None => {
+                    p.push(ParamDef {
+                        name,
+                        value: default,
+                        min,
+                        max,
+                    });
+                    default
+                }
+            }
+        });
+        Ok(value)
+    })?;
+    g.set("param", param)?;
 
     Ok(())
 }
