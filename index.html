@@ -65,7 +65,7 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
     let ORIGINAL = '';
     const setStatus = (m) => { statusEl.textContent = m; };
 
-    fetch('game_of_life.lua')
+    fetch('assets/game_of_life.lua')
       .then((r) => r.text())
       .then((t) => { ORIGINAL = t; ta.value = t; })
       .catch(() => setStatus('could not load game_of_life.lua'));
