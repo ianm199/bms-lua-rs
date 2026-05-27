@@ -1,0 +1,8 @@
+[package]
+name = "gate0-rhai-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "Gate 0: prove the pure-Rust bms Rhai backend compiles to wasm32-unknown-unknown."
+
+[dependencies]
+bevy_mod_scripting_rhai = "0.19"

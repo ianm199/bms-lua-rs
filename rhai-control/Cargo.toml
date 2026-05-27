@@ -1,0 +1,20 @@
+[package]
+name = "bms-rhai-control"
+version = "0.1.0"
+edition = "2021"
+description = "Control: bms + Rhai (pure-Rust, not lua-rs) in wasm. Heartbeat shows frozen vs responsive — splits 'bms pipeline broken in wasm' from 'lua-rs-specific'."
+
+[dependencies]
+bevy = "0.18"
+bevy_mod_scripting_core = "0.19"
+bevy_mod_scripting_bindings = "0.19"
+bevy_mod_scripting_asset = "0.19"
+bevy_mod_scripting_rhai = "0.19"
+
+# Same std::time::Instant -> bevy_platform wasm fix as the lua-rs demo.
+[patch.crates-io]
+bevy_mod_scripting_core = { path = "../vendor/bevy_mod_scripting_core" }
+
+[profile.release]
+opt-level = "s"
+lto = "thin"

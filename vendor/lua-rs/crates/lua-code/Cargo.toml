@@ -1,0 +1,16 @@
+[package]
+name = "lua-code"
+version.workspace = true
+description.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+lua-types.workspace = true
+lua-vm.workspace = true

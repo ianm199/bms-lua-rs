@@ -1,0 +1,24 @@
+[package]
+name = "bms-lua-rs-web-demo"
+version = "0.1.0"
+edition = "2021"
+description = "Gate 1d: a Bevy game scripted in Lua via the pure-Rust lua-rs bms backend, in the browser."
+
+[dependencies]
+bevy = "0.18"
+bevy_mod_scripting_core = "0.19"
+bevy_mod_scripting_bindings = "0.19"
+bevy_mod_scripting_asset = "0.19"
+bevy_mod_scripting_functions = { version = "0.19", features = ["core_functions"] }
+bevy_mod_scripting_lua_rs = { path = "../bevy_mod_scripting_lua_rs" }
+wasm-bindgen = "0.2"
+
+[profile.release]
+opt-level = "s"
+lto = "thin"
+
+# Inject the std::time::Instant -> bevy_platform::time::Instant wasm fix (PR #543)
+# into core, pinned to the same 0.19.0 so the other published bms crates are unaffected.
+# mlua/rhai/rune are untouched; this is purely the wasm-runtime fix.
+[patch.crates-io]
+bevy_mod_scripting_core = { path = "../vendor/bevy_mod_scripting_core" }

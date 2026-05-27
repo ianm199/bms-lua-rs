@@ -1,0 +1,4 @@
+# lua-rs + bms's deep machine nesting can overflow wasm's default ~1MB stack.
+# Bump it (test of the stack-exhaustion hypothesis for the cclosure-call freeze).
+[target.wasm32-unknown-unknown]
+rustflags = ["-C", "link-arg=-zstack-size=16777216"]
