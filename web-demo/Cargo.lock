@@ -3363,6 +3363,8 @@ checksum = "616ec5685824bcc94416c6d4a7a446eea774a31efd7062c8480ba6fd06d7a6e5"
 [[package]]
 name = "lua-code"
 version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a0095db7e7e2b4d34298297fe8a02a12ec5da16e127ae5da3626e2b8bccdf79c"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -3371,10 +3373,14 @@ dependencies = [
 [[package]]
 name = "lua-gc"
 version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f305ed0836f77373b933569e3d2fcab708780c05a2b101b2d9730c4ab60d9dd"
 
 [[package]]
 name = "lua-lex"
 version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f30353a5d12ece66b78408496417beebc722ee7281895132e175d9677217c0a8"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -3383,6 +3389,8 @@ dependencies = [
 [[package]]
 name = "lua-parse"
 version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c090e4f940e36fdf9d3a72218deb51d135cb747bf69f468e35437950b00d2d8b"
 dependencies = [
  "lua-code",
  "lua-lex",
@@ -3393,6 +3401,8 @@ dependencies = [
 [[package]]
 name = "lua-rs-runtime"
 version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6083fc22932d5a7ee73af54261dde9931fb1382cf0f87a572f50a7817d1fbbbc"
 dependencies = [
  "lua-gc",
  "lua-parse",
@@ -3404,6 +3414,8 @@ dependencies = [
 [[package]]
 name = "lua-stdlib"
 version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e41866818a62349cc2a23491a25f88b76f4e5de2c2a64014543f1fb7cf4f6446"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -3412,6 +3424,8 @@ dependencies = [
 [[package]]
 name = "lua-types"
 version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "097bdff02706504f004fb6787197b7d3d01c5f7a339bc97b1a8bb02e49fe9375"
 dependencies = [
  "lua-gc",
 ]
@@ -3419,6 +3433,8 @@ dependencies = [
 [[package]]
 name = "lua-vm"
 version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e7c20405c50250a29fb333a2ca42d1710b4a20ba53560b9922abd5a4e305569"
 dependencies = [
  "lua-gc",
  "lua-types",
