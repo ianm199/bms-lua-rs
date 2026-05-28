@@ -3362,9 +3362,9 @@ checksum = "616ec5685824bcc94416c6d4a7a446eea774a31efd7062c8480ba6fd06d7a6e5"
 
 [[package]]
 name = "lua-code"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc0b6c2e7219d5864136e52f5120ba1161f21981d4afca7d0c231e9eb26bb257"
+checksum = "83f9b8105340273d20531997cd840874cc5b3cd2ce9fc2d01db800885049c498"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -3372,15 +3372,15 @@ dependencies = [
 
 [[package]]
 name = "lua-gc"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4bee52dc465b9303bde3e6cb9e5e4be72fc99ebf2e84f01d496677fa5c2af9a"
+checksum = "d7ffcc14a851a1f441232b30de5e561c03e51dee814e1aed7050b55a6ee7f9ac"
 
 [[package]]
 name = "lua-lex"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52f2952aaf6151fe40ea34e3cbee38937d79b90b9f85649889d3048e318cc975"
+checksum = "49b187048ac8de96756b35f40a2a0dab897870b9c6304258aff0041df4ee4c08"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -3388,9 +3388,9 @@ dependencies = [
 
 [[package]]
 name = "lua-parse"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d76626d3e3a6aef52e9ee840c94bde1b1e49fbe14cca23a65e42972f84b2791d"
+checksum = "f107d50d1c120f63b3a0025f239d98a2cbc5993bd3bf05df81c2052be993008d"
 dependencies = [
  "lua-code",
  "lua-lex",
@@ -3400,9 +3400,9 @@ dependencies = [
 
 [[package]]
 name = "lua-rs-runtime"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ada1c6619adc59225dd97811ee43196bed59d1cd7ee39c4c2904e38becded4ab"
+checksum = "0cfde9b9760a8f649c6cd8ee402a410faeba0493301a7bdea07dd2220f9a2e6c"
 dependencies = [
  "lua-gc",
  "lua-parse",
@@ -3413,9 +3413,9 @@ dependencies = [
 
 [[package]]
 name = "lua-stdlib"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df412483bfd15ca349f85eb7cc936746a4aa36652c6feb50bd80a74f3922e699"
+checksum = "a9f2b8f4fe6c9864e396fefa1382295f44c01296f81892e2dd7b3029244d3379"
 dependencies = [
  "lua-types",
  "lua-vm",
@@ -3423,18 +3423,18 @@ dependencies = [
 
 [[package]]
 name = "lua-types"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ef549fd111a25536b3469fb2b2d05bcefb3e5f964d7d5182b95b63944cbf6a7"
+checksum = "0688d0300c13c5aba40346220620cdace0a74f40380a22900434754e38b62c45"
 dependencies = [
  "lua-gc",
 ]
 
 [[package]]
 name = "lua-vm"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af185ae78b4836da45540859e193b19b198488ddddab43009fa8b41f5e2fa7ad"
+checksum = "adc7edcb48710103b5ac0eb60621b078a00e95687bf136dcc8044fa1bcba8add"
 dependencies = [
  "lua-gc",
  "lua-types",
